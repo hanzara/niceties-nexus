@@ -77,16 +77,24 @@ export const MakeContributionModal: React.FC<MakeContributionModalProps> = ({
       if (error) throw error;
 
       toast({
-        title: "Contribution Successful! 🎉",
-        description: `You contributed KES ${contributionAmount} to ${selectedChama?.name}`,
+        title: "✅ Contribution Successful!",
+        description: (
+          <div className="space-y-2">
+            <p>You contributed <strong>KES {contributionAmount.toLocaleString()}</strong> to <strong>{selectedChama?.name}</strong></p>
+            <p className="text-xs text-muted-foreground">Your contribution has been added to the leaderboard</p>
+          </div>
+        ),
       });
 
       // Invalidate queries to refresh data across the app
-      queryClient.invalidateQueries({ queryKey: ['chama-members', selectedChamaId] });
-      queryClient.invalidateQueries({ queryKey: ['chama-leaderboard', selectedChamaId] });
-      queryClient.invalidateQueries({ queryKey: ['chamas'] });
-      queryClient.invalidateQueries({ queryKey: ['user-chamas'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      await queryClient.invalidateQueries({ queryKey: ['chama-members', selectedChamaId] });
+      await queryClient.invalidateQueries({ queryKey: ['chama-leaderboard', selectedChamaId] });
+      await queryClient.invalidateQueries({ queryKey: ['chamas'] });
+      await queryClient.invalidateQueries({ queryKey: ['user-chamas'] });
+      await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+
+      // Small delay to allow queries to refresh before closing
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Reset form
       setSelectedChamaId('');

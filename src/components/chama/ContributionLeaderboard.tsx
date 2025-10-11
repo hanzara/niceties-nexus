@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Download, RefreshCw, ArrowUpDown, DollarSign } from 'lucide-react';
 import CurrencyDisplay from '@/components/CurrencyDisplay';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -100,10 +100,17 @@ export const ContributionLeaderboard: React.FC<ContributionLeaderboardProps> = (
   };
 
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader>
+    <Card className="border-0 shadow-lg hover:shadow-xl transition-all">
+      <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5">
         <div className="flex items-center justify-between">
-          <CardTitle>Contribution Leaderboard</CardTitle>
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2">
+              🏆 Contribution Leaderboard
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Top contributors ranked by total savings
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
               <SelectTrigger className="w-[180px]">
@@ -118,7 +125,12 @@ export const ContributionLeaderboard: React.FC<ContributionLeaderboardProps> = (
                 <SelectItem value="alphabetical">Alphabetical</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="icon" onClick={() => refetch()}>
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={() => refetch()}
+              className="hover:bg-primary/10 transition-colors"
+            >
               <RefreshCw className="h-4 w-4" />
             </Button>
             {canDownload && (
@@ -131,46 +143,71 @@ export const ContributionLeaderboard: React.FC<ContributionLeaderboardProps> = (
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-muted animate-pulse rounded" />
+              <div key={i} className="h-20 bg-gradient-to-r from-muted/50 to-muted animate-pulse rounded-lg" />
             ))}
           </div>
-        ) : (
-          <div className="space-y-2">
-            {members?.map((member, index) => (
+        ) : members && members.length > 0 ? (
+          <div className="space-y-3">
+            {members.map((member, index) => (
               <div
                 key={member.id}
-                className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                className="group relative flex items-center justify-between p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-lg hover:from-primary/10 hover:to-secondary/10 transition-all hover:shadow-md border border-transparent hover:border-primary/20"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div className={`
-                    w-8 h-8 rounded-full flex items-center justify-center font-bold
-                    ${index === 0 ? 'bg-yellow-500 text-white' :
-                      index === 1 ? 'bg-gray-400 text-white' :
-                      index === 2 ? 'bg-orange-600 text-white' :
-                      'bg-muted-foreground/20'}
+                    relative w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg
+                    ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-lg shadow-yellow-500/50' :
+                      index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white shadow-lg shadow-gray-400/50' :
+                      index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-lg shadow-orange-500/50' :
+                      'bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/10'}
                   `}>
+                    {index < 3 && (
+                      <div className="absolute -top-1 -right-1 text-xl">
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                      </div>
+                    )}
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-medium">{(member.profiles as any)?.email || 'Member'}</p>
-                    <Badge variant="outline" className="text-xs">
-                      {member.role}
-                    </Badge>
+                    <p className="font-semibold text-base">{(member.profiles as any)?.email || 'Member'}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        {member.role}
+                      </Badge>
+                      {member.last_contribution_date && (
+                        <span className="text-xs text-muted-foreground">
+                          Last: {new Date(member.last_contribution_date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right space-y-1">
                   <CurrencyDisplay 
                     amount={member.total_contributed || 0} 
-                    className="font-bold"
+                    className="font-bold text-lg"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Savings: <CurrencyDisplay amount={member.savings_balance || 0} />
-                  </p>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span>Savings:</span>
+                    <CurrencyDisplay amount={member.savings_balance || 0} className="font-medium" />
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 space-y-4">
+            <div className="mx-auto w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
+              <DollarSign className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-muted-foreground">No contributions yet</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Be the first to contribute to this chama!
+              </p>
+            </div>
           </div>
         )}
       </CardContent>
