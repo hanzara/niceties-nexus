@@ -123,10 +123,7 @@ async function handleTopUp(supabase: any, member: any, amount: number, chamaId: 
 }
 
 async function handleWithdraw(supabase: any, member: any, amount: number, chamaId: string, paymentMethod: string, recipient: string) {
-  if (member.withdrawal_locked) {
-    throw new Error('Withdrawals are currently locked for your account');
-  }
-
+  // Allow withdrawals regardless of lock status
   if (member.mgr_balance < amount) {
     throw new Error('Insufficient MGR wallet balance');
   }

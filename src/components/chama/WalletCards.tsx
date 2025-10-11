@@ -100,9 +100,9 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
             
             <Button 
               onClick={() => handleOpenModal('withdraw')} 
-              disabled={withdrawalLocked || mgrBalance === 0}
+              disabled={mgrBalance === 0}
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-500 hover:text-white transition-all duration-300"
               size="sm"
             >
               <ArrowDown className="h-4 w-4 mr-2" />
@@ -113,7 +113,7 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
               onClick={() => handleOpenModal('send')} 
               disabled={mgrBalance === 0}
               variant="outline" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-gradient-to-r hover:from-blue-500 hover:to-indigo-500 hover:text-white transition-all duration-300"
               size="sm"
             >
               <Send className="h-4 w-4 mr-2" />
@@ -146,9 +146,9 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
             members={members}
           />
 
-          {withdrawalLocked && (
-            <div className="text-xs text-muted-foreground bg-yellow-50 p-2 rounded">
-              🔒 Withdrawals locked until it's your turn or admin unlocks
+          {mgrBalance > 0 && (
+            <div className="text-xs text-emerald-600 bg-emerald-50 p-2 rounded-lg font-medium flex items-center gap-2">
+              ✓ Withdrawals and transfers are active
             </div>
           )}
         </CardContent>
